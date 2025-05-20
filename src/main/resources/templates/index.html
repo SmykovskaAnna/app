@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipe List</title>
+    <style>
+        body {
+          font-family: 'Segoe UI', sans-serif;
+          background: #f3f3f3;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 800px;
+          margin: auto;
+          padding: 20px;
+        }
+        h1 { color: #2c3e50; text-align: center; }
+        form {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        input[type="text"] {
+          padding: 10px;
+          width: 60%;
+          max-width: 300px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+          padding: 10px 15px;
+          border: none;
+          border-radius: 5px;
+          background-color: #3498db;
+          color: white;
+          cursor: pointer;
+        }
+        .recipe-card {
+          background: white;
+          padding: 15px;
+          margin: 10px 0;
+          border-radius: 6px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .recipe-card a {
+          margin-right: 15px;
+          text-decoration: none;
+          color: #3498db;
+        }
+        .add-link {
+          display: block;
+          text-align: center;
+          margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Recipe List</h1>
+
+    <form method="get" action="/">
+        <input type="text" name="keyword" placeholder="Search recipes..."/>
+        <input type="submit" value="Search"/>
+    </form>
+    <div th:each="recipe : ${listRecipes}" class="recipe-card">
+        <p><b th:text="${recipe.title}"></b></p>
+
+        <!-- ⭐ Rating Stars -->
+        <p>
+        <span th:with="rating=${avgRatings[recipe.id].intValue()}">
+            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                  th:text="${i <= rating ? '★' : '☆'}"
+                  style="color: #f1c40f; font-size: 18px;">
+            </span>
+        </span>
+            <span th:if="${avgRatings[recipe.id] > 0}" th:text="'(' + ${#numbers.formatDecimal(avgRatings[recipe.id], 1, 1)} + ')'"></span>
+            <span th:if="${avgRatings[recipe.id] == 0}">(No ratings yet)</span>
+        </p>
+
+        <a th:href="@{'/view/' + ${recipe.id}}">View</a>
+        <a th:href="@{'/edit/' + ${recipe.id}}">Edit</a>
+        <a th:href="@{'/delete/' + ${recipe.id}}">Delete</a>
+    </div>
+
+
+    <a href="/new" class="add-link">+ Add New Recipe</a>
+</div>
+</body>
+</html>

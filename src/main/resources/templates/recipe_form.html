@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${#strings.isEmpty(recipe.id) ? 'Add Recipe' : 'Edit Recipe'}">Recipe Form</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f0f2f5;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+        }
+        .form-wrapper {
+          background: white;
+          padding: 25px;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 500px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1 { text-align: center; color: #2c3e50; }
+        label { font-weight: bold; margin-top: 10px; display: block; }
+        input[type="text"], textarea {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        textarea { resize: vertical; }
+        input[type="submit"] {
+          margin-top: 20px;
+          width: 100%;
+          padding: 10px;
+          background: #27ae60;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 16px;
+          cursor: pointer;
+        }
+        input[type="submit"]:hover {
+          background: #219150;
+        }
+    </style>
+</head>
+<body>
+<div class="form-wrapper">
+    <h1 th:text="${#strings.isEmpty(recipe.id) ? 'Add Recipe' : 'Edit Recipe'}"></h1>
+
+    <form th:action="@{/save}" th:object="${recipe}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label>Title:</label>
+        <input type="text" th:field="*{title}" required/>
+
+        <label>Description:</label>
+        <input type="text" th:field="*{description}" required/>
+
+        <label>Ingredients:</label>
+        <textarea th:field="*{ingredients}" rows="4" required></textarea>
+
+        <label>Instructions:</label>
+        <textarea th:field="*{instructions}" rows="6" required></textarea>
+
+        <input type="submit" value="Save Recipe"/>
+    </form>
+</div>
+</body>
+</html>

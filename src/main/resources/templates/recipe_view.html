@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${recipe.title}">Recipe Details</title>
+    <style>
+        body {
+          font-family: 'Georgia', serif;
+          background: #fffaf3;
+          margin: 0;
+          padding: 0;
+        }
+
+        .container {
+          max-width: 900px;
+          margin: auto;
+          background: white;
+          padding: 40px;
+          border-radius: 10px;
+          box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+          margin-top: 40px;
+        }
+
+        h2 {
+          font-size: 32px;
+          color: #2c3e50;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 10px;
+        }
+
+        .subtitle {
+          font-style: italic;
+          color: #555;
+          margin-bottom: 25px;
+        }
+
+        .section {
+          margin-bottom: 30px;
+        }
+
+        .section h3 {
+          color: #8e44ad;
+          margin-bottom: 10px;
+        }
+
+        .section p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #333;
+        }
+
+        .comments {
+          border-top: 1px solid #ccc;
+          padding-top: 20px;
+        }
+
+        .comment {
+          background: #f9f9f9;
+          border-left: 5px solid #8e44ad;
+          padding: 15px;
+          margin-bottom: 15px;
+          border-radius: 6px;
+        }
+
+        .comment b {
+          font-size: 15px;
+          color: #2c3e50;
+        }
+
+        .rating-stars {
+          color: #f1c40f;
+          font-size: 18px;
+        }
+
+        form {
+          background: #fefefe;
+          border: 1px solid #ddd;
+          padding: 25px;
+          border-radius: 8px;
+        }
+
+        label {
+          display: block;
+          margin-top: 10px;
+          font-weight: bold;
+          color: #333;
+        }
+
+        input[type="text"], textarea, input[type="number"] {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-family: inherit;
+          font-size: 15px;
+        }
+
+        textarea { resize: vertical; }
+
+        input[type="submit"] {
+          margin-top: 15px;
+          padding: 12px 20px;
+          background: #27ae60;
+          border: none;
+          color: white;
+          font-size: 16px;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+          background: #219150;
+        }
+
+        .back-link {
+          margin-top: 30px;
+          display: inline-block;
+          color: #3498db;
+          text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="${recipe.title}"></h2>
+    <p class="subtitle" th:text="${recipe.description}"></p>
+
+    <div class="section">
+        <h3>Ingredients</h3>
+        <p th:text="${recipe.ingredients}"></p>
+    </div>
+
+    <div class="section">
+        <h3>Instructions</h3>
+        <p th:text="${recipe.instructions}"></p>
+    </div>
+
+    <div class="comments section">
+        <h3>Comments</h3>
+        <div th:each="c : ${comments}" class="comment">
+            <b th:text="${c.author}"></b>
+            <div class="rating-stars" th:with="r=${c.rating}">
+                <span th:each="i : ${#numbers.sequence(1,5)}"
+                      th:text="${i <= r ? '★' : '☆'}"></span>
+            </div>
+            <p th:text="${c.content}"></p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Add Your Comment</h3>
+        <form th:action="@{/comment/save}" th:object="${comment}" method="post">
+            <input type="hidden" name="recipeId" th:value="${recipe.id}"/>
+
+            <label>Your Name:</label>
+            <input type="text" th:field="*{author}" required/>
+
+            <label>Your Comment:</label>
+            <textarea th:field="*{content}" rows="4" required></textarea>
+
+            <label>Rating (1–5):</label>
+            <input type="number" th:field="*{rating}" min="1" max="5" required/>
+
+            <input type="submit" value="Submit Comment"/>
+        </form>
+    </div>
+
+    <a class="back-link" href="/">← Back to Recipe List</a>
+</div>
+</body>
+</html>
