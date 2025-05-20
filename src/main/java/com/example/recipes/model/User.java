@@ -43,7 +43,7 @@ public class User implements UserDetails {
     private boolean enabled = true;
 
     public enum Role {
-        USER, ADMIN
+        USER, ROLE_USER, ADMIN
     }
 
     @Override

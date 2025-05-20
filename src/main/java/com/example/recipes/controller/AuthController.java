@@ -1,39 +1,59 @@
 package com.example.recipes.controller;
 
-import com.example.recipes.dto.AuthRequest;
-import com.example.recipes.dto.AuthResponse;
-import com.example.recipes.dto.RegisterRequest;
-import com.example.recipes.dto.UserDto;
-import com.example.recipes.service.AuthService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.example.recipes.model.User;
+import com.example.recipes.service.UserDetailsServiceImpl;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
-@RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
+@Controller
 public class AuthController {
 
-    private final AuthService authService;
+    @Autowired
+    private UserDetailsServiceImpl userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
-    }
+    public String registerUser(@Valid @ModelAttribute("user") User user,
+                               BindingResult result,
+                               Model model) {
 
-    @GetMapping("/profile")
-    public ResponseEntity<UserDto> getProfile() {
-        return ResponseEntity.ok(authService.getCurrentUser());
-    }
+        // Check for validation errors
+        if (result.hasErrors()) {
+            return "register";
+        }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        // В JWT автентифікації вихід обробляється на стороні клієнта шляхом видалення токена
-        return ResponseEntity.ok("Successfully logged out");
+        // Check if username exists
+        if (userService.existsByUsername(user.getUsername())) {
+            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
+            return "register";
+        }
+
+        // Check if email exists
+        if (userService.existsByEmail(user.getEmail())) {
+            model.addAttribute("emailError", "Пользователь с таким email уже существует");
+            return "register";
+        }
+
+        // Save user to database
+        userService.save(user);
+
+        return "redirect:/login?success";
     }
 }

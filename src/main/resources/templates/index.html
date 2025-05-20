@@ -1,89 +1,75 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Recipe List</title>
-    <style>
-        body {
-          font-family: 'Segoe UI', sans-serif;
-          background: #f3f3f3;
-          margin: 0;
-          padding: 0;
-        }
-        .container {
-          max-width: 800px;
-          margin: auto;
-          padding: 20px;
-        }
-        h1 { color: #2c3e50; text-align: center; }
-        form {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-        input[type="text"] {
-          padding: 10px;
-          width: 60%;
-          max-width: 300px;
-          border-radius: 5px;
-          border: 1px solid #ccc;
-        }
-        input[type="submit"] {
-          padding: 10px 15px;
-          border: none;
-          border-radius: 5px;
-          background-color: #3498db;
-          color: white;
-          cursor: pointer;
-        }
-        .recipe-card {
-          background: white;
-          padding: 15px;
-          margin: 10px 0;
-          border-radius: 6px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .recipe-card a {
-          margin-right: 15px;
-          text-decoration: none;
-          color: #3498db;
-        }
-        .add-link {
-          display: block;
-          text-align: center;
-          margin-top: 25px;
-        }
-    </style>
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<div class="container">
-    <h1>Recipe List</h1>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Моё приложение</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{/}">Главная</a>
+                </li>
+                <!-- Здесь можно добавить другие пункты меню -->
+            </ul>
+            <ul class="navbar-nav">
+                <!-- Для неавторизованных пользователей -->
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Войти</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/register}">Регистрация</a>
+                </li>
 
-    <form method="get" action="/">
-        <input type="text" name="keyword" placeholder="Search recipes..."/>
-        <input type="submit" value="Search"/>
-    </form>
-    <div th:each="recipe : ${listRecipes}" class="recipe-card">
-        <p><b th:text="${recipe.title}"></b></p>
-
-        <!-- ⭐ Rating Stars -->
-        <p>
-        <span th:with="rating=${avgRatings[recipe.id].intValue()}">
-            <span th:each="i : ${#numbers.sequence(1, 5)}"
-                  th:text="${i <= rating ? '★' : '☆'}"
-                  style="color: #f1c40f; font-size: 18px;">
-            </span>
-        </span>
-            <span th:if="${avgRatings[recipe.id] > 0}" th:text="'(' + ${#numbers.formatDecimal(avgRatings[recipe.id], 1, 1)} + ')'"></span>
-            <span th:if="${avgRatings[recipe.id] == 0}">(No ratings yet)</span>
-        </p>
-
-        <a th:href="@{'/view/' + ${recipe.id}}">View</a>
-        <a th:href="@{'/edit/' + ${recipe.id}}">Edit</a>
-        <a th:href="@{'/delete/' + ${recipe.id}}">Delete</a>
+                <!-- Для авторизованных пользователей -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span sec:authentication="name"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" th:href="@{/profile}">Профиль</a>
+                        <div class="dropdown-divider"></div>
+                        <form th:action="@{/logout}" method="post" class="dropdown-item">
+                            <button type="submit" class="btn btn-link p-0 m-0">Выйти</button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
+</nav>
 
+<div class="container mt-5">
+    <div class="jumbotron">
+        <h1 class="display-4">Добро пожаловать в наше приложение!</h1>
+        <p class="lead">Это простое приложение на Spring Boot с авторизацией.</p>
 
-    <a href="/new" class="add-link">+ Add New Recipe</a>
+        <div sec:authorize="isAuthenticated()">
+            <p>Вы вошли как: <span sec:authentication="name"></span></p>
+            <p>Ваша роль: <span sec:authentication="principal.authorities"></span></p>
+        </div>
+
+        <div sec:authorize="!isAuthenticated()">
+            <hr class="my-4">
+            <p>Для доступа ко всем функциям приложения, пожалуйста, войдите или зарегистрируйтесь.</p>
+            <a class="btn btn-primary btn-lg" th:href="@{/login}" role="button">Войти</a>
+            <a class="btn btn-success btn-lg" th:href="@{/register}" role="button">Регистрация</a>
+        </div>
+    </div>
 </div>
+
+<!-- Bootstrap JavaScript and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
